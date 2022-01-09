@@ -9,6 +9,9 @@
 
 CMakeLists.txt.user
 CMakeLists_modified.txt
+.clang-format
+
+Examples_old/
 
 Examples/RGB-D/rgbd_tum
 Examples/RGB-D/rgbd_realsense_D435i
@@ -64,6 +67,9 @@ Thirdparty/DBoW2/lib/
 Thirdparty/g2o/build/
 Thirdparty/g2o/config.h
 Thirdparty/g2o/lib/
+Thirdparty/opencv/
+Thirdparty/Pangolin/
+
 Vocabulary/ORBvoc.txt
 build/
 
@@ -91,3 +97,6 @@ my_settings.txt
 borrar/*
 
 */ExecMean.txt
+
+bin_vocabulary
+

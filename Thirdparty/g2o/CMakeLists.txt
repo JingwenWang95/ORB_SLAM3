@@ -3,6 +3,9 @@ SET(CMAKE_LEGACY_CYGWIN_WIN32 0)
 
 PROJECT(g2o)
 
+# c++ version
+set(CMAKE_CXX_STANDARD 17)
+
 SET(g2o_C_FLAGS)
 SET(g2o_CXX_FLAGS)
 
@@ -176,3 +179,4 @@ g2o/stuff/string_tools.cpp
 g2o/stuff/property.cpp       
 g2o/stuff/property.h       
 )
+set_target_properties(g2o PROPERTIES CXX_STANDARD 17)
