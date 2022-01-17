@@ -147,6 +147,23 @@ cmake -DEigen3_DIR="$Eigen3_DIR" ..
 make -j8
 cd ../../..
 
+highlight "Installing cnpy ..."
+git_clone "git clone https://github.com/rogersce/cnpy.git"
+cd cnpy
+if [ ! -d build ]; then
+  mkdir build
+fi
+cd build
+cmake ..
+make
+sudo make install
+cd ../..
+
+highlight "Add keypoints dir ..."
+if [ ! -d per_frame_keypoints ]; then
+  mkdir per_frame_keypoints
+fi
+
 highlight "building ORB-SLAM3 ..."
 if [ ! -d build ]; then
   mkdir build

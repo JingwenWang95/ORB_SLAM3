@@ -101,3 +101,5 @@ borrar/*
 
 bin_vocabulary
 
+per_frame_keypoints
+per_frame_keypoints_vis

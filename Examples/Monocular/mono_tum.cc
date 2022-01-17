@@ -20,10 +20,12 @@
 #include<algorithm>
 #include<fstream>
 #include<chrono>
+#include"cnpy.h"
 
 #include<opencv2/core/core.hpp>
 
 #include<System.h>
+#include<MapPoint.h>
 
 using namespace std;
 
@@ -47,12 +49,15 @@ int main(int argc, char **argv)
     int nImages = vstrImageFilenames.size();
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
-    ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::MONOCULAR,true);
+    ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::MONOCULAR,false);
     float imageScale = SLAM.GetImageScale();
 
     // Vector for tracking time statistics
     vector<float> vTimesTrack;
     vTimesTrack.resize(nImages);
+
+    // Vector for visible keypoints per tracked frame
+    vector<vector<Eigen::Vector3f>> vVisibleMapPointsPerFrame;
 
     cout << endl << "-------" << endl;
     cout << "Start processing sequence ..." << endl;
@@ -108,6 +113,17 @@ int main(int argc, char **argv)
         // Pass the image to the SLAM system
         SLAM.TrackMonocular(im,tframe);
 
+        const vector<ORB_SLAM3::MapPoint *> vpMPs = SLAM.GetTrackedMapPoints();
+        vector<Eigen::Vector3f> vpMPs_pos;
+
+        for (size_t i = 0, iend = vpMPs.size(); i < iend; i++) {
+                if (!vpMPs[i] || vpMPs[i]->isBad())
+                continue;
+                vpMPs_pos.push_back(vpMPs[i]->GetWorldPos());
+        }
+
+        vVisibleMapPointsPerFrame.push_back(vpMPs_pos);
+
 #ifdef COMPILEDWITHC17
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
 #else
@@ -150,6 +166,21 @@ int main(int argc, char **argv)
 
     // Save camera trajectory
     SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
+
+    for(int ni=0; ni<nImages; ni++)
+    {
+        int currFrameNMPs = vVisibleMapPointsPerFrame[ni].size();
+
+        if (currFrameNMPs > 0) {
+            std::vector<float> data(currFrameNMPs*3);
+            for (size_t i = 0; i < currFrameNMPs; i++) {
+                for (int j = 0; j < 3; j++) {
+                    data[i*3+j] = vVisibleMapPointsPerFrame[ni][i][j];
+                }
+            }
+            cnpy::npy_save("../per_frame_keypoints/" + to_string(vTimestamps[ni]) + ".npy", &data[0], {currFrameNMPs,3}, "w");
+        }
+    }
 
     return 0;
 }
